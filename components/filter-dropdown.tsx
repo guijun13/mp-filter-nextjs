@@ -16,20 +16,20 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 export default function FilterDropdown() {
-  const [state, setState] = useState('');
+  const [status, setStatus] = useState('');
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  function handleFilter(select: string) {
+  function handleStatus(statusValue: string) {
     const params = new URLSearchParams(searchParams);
-    if (select) {
-      params.set('filter', select);
+    if (statusValue) {
+      params.set('status', statusValue);
     } else {
-      params.delete('filter');
+      params.delete('status');
     }
     replace(`${pathname}?${params.toString()}`);
-    setState(select);
+    setStatus(statusValue);
   }
 
   return (
@@ -44,7 +44,7 @@ export default function FilterDropdown() {
       <DropdownMenuContent className="w-16">
         <DropdownMenuLabel>Filtrar por:</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup value={state} onValueChange={handleFilter}>
+        <DropdownMenuRadioGroup value={status} onValueChange={handleStatus}>
           <DropdownMenuRadioItem value="">Todos</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="pending">Pendente</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="completed">Completo</DropdownMenuRadioItem>

@@ -9,12 +9,12 @@ export default function SearchInput() {
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  function handleSearch(term: string) {
+  function handleSearch(searchValue: string) {
     const params = new URLSearchParams(searchParams);
-    if (term) {
-      params.set('query', term);
+    if (searchValue) {
+      params.set('search', searchValue);
     } else {
-      params.delete('query');
+      params.delete('search');
     }
     replace(`${pathname}?${params.toString()}`);
   }
@@ -29,7 +29,7 @@ export default function SearchInput() {
         onChange={(e) => {
           handleSearch(e.target.value);
         }}
-        defaultValue={searchParams.get('query')?.toString()}
+        defaultValue={searchParams.get('search')?.toString()}
       />
     </div>
   );

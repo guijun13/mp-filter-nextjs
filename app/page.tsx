@@ -18,26 +18,24 @@ export interface orderData {
   updated_at: Date;
 }
 
-async function getOrdersData(query: string, filter: string, currentPage: number) {
+async function getOrdersData(search: string, status: string, currentPage: number) {
   noStore();
   let url = `https://apis.codante.io/api/orders-api/orders`;
 
-  if (query !== '') {
-    url += `?search=${query}`;
+  if (search !== '') {
+    url += `?search=${search}`;
   }
 
-  if (filter !== '') {
-    url += `${query !== '' ? '&' : '?'}status=${filter}`;
+  if (status !== '') {
+    url += `${search !== '' ? '&' : '?'}status=${status}`;
   }
 
   if (currentPage > 1) {
-    url += `${query !== '' || filter !== '' ? '&' : '?'}page=${currentPage}`;
+    url += `${search !== '' || status !== '' ? '&' : '?'}page=${currentPage}`;
   }
 
   const response = await fetch(url);
   const orders = await response.json();
-
-  console.log(orders);
 
   if (!response.ok) {
     throw new Error('Failed to fetch data');
@@ -50,15 +48,15 @@ export default async function Page({
   searchParams,
 }: {
   searchParams?: {
-    query?: string;
+    search?: string;
     page?: string;
-    filter?: string;
+    status?: string;
   };
 }) {
-  const query = searchParams?.query || '';
-  const filter = searchParams?.filter || '';
+  const search = searchParams?.search || '';
+  const status = searchParams?.status || '';
   const currentPage = Number(searchParams?.page) || 1;
-  const ordersData: orderData[] = await getOrdersData(query, filter, currentPage);
+  const ordersData: orderData[] = await getOrdersData(search, status, currentPage);
 
   return (
     <main className="container px-1 py-10 md:p-10">
@@ -72,7 +70,7 @@ export default async function Page({
           </div>
         </CardHeader>
         <CardContent>
-          <Suspense key={query + currentPage}>
+          <Suspense key={search + currentPage}>
             <OrdersTable ordersData={ordersData} />
           </Suspense>
           <div className="mt-8">
