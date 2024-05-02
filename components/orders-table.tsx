@@ -35,7 +35,7 @@ export default function OrdersTable({ ordersData }: { ordersData: orderData[] })
         </TableRow>
       </TableHeader>
       <TableBody>
-        {ordersData.map((order: orderData) => (
+        {ordersData?.map((order: orderData) => (
           <TableRow key={order.id}>
             <TableCell>
               <div className="font-medium">{order.customer_name}</div>

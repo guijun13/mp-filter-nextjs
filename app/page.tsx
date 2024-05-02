@@ -2,8 +2,10 @@ import FilterDropdown from '@/components/filter-dropdown';
 import OrdersTable from '@/components/orders-table';
 import Pagination from '@/components/pagination';
 import SearchInput from '@/components/search-input';
+import { unstable_noStore as noStore } from 'next/cache';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Suspense } from 'react';
 
 export interface orderData {
   id: number;
@@ -16,8 +18,14 @@ export interface orderData {
   updated_at: Date;
 }
 
-async function getOrdersData() {
-  const response = await fetch('https://apis.codante.io/api/orders-api/orders');
+async function getOrdersData(query: string, currentPage: number) {
+  noStore();
+  const url =
+    query !== ''
+      ? `https://apis.codante.io/api/orders-api/orders?search=${query}&page=${currentPage}`
+      : `https://apis.codante.io/api/orders-api/orders`;
+
+  const response = await fetch(url);
   const orders = await response.json();
 
   if (!response.ok) {
@@ -27,8 +35,17 @@ async function getOrdersData() {
   return orders.data;
 }
 
-export default async function Component() {
-  const ordersData: orderData[] = await getOrdersData();
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: {
+    query?: string;
+    page?: string;
+  };
+}) {
+  const query = searchParams?.query || '';
+  const currentPage = Number(searchParams?.page) || 1;
+  const ordersData: orderData[] = await getOrdersData(query, currentPage);
 
   return (
     <main className="container px-1 py-10 md:p-10">
@@ -42,7 +59,9 @@ export default async function Component() {
           </div>
         </CardHeader>
         <CardContent>
-          <OrdersTable ordersData={ordersData} />
+          <Suspense key={query + currentPage}>
+            <OrdersTable ordersData={ordersData} />
+          </Suspense>
           <div className="mt-8">
             <Pagination />
           </div>
