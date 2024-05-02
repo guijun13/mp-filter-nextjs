@@ -18,15 +18,26 @@ export interface orderData {
   updated_at: Date;
 }
 
-async function getOrdersData(query: string, currentPage: number) {
+async function getOrdersData(query: string, filter: string, currentPage: number) {
   noStore();
-  const url =
-    query !== ''
-      ? `https://apis.codante.io/api/orders-api/orders?search=${query}&page=${currentPage}`
-      : `https://apis.codante.io/api/orders-api/orders`;
+  let url = `https://apis.codante.io/api/orders-api/orders`;
+
+  if (query !== '') {
+    url += `?search=${query}`;
+  }
+
+  if (filter !== '') {
+    url += `${query !== '' ? '&' : '?'}status=${filter}`;
+  }
+
+  if (currentPage > 1) {
+    url += `${query !== '' || filter !== '' ? '&' : '?'}page=${currentPage}`;
+  }
 
   const response = await fetch(url);
   const orders = await response.json();
+
+  console.log(orders);
 
   if (!response.ok) {
     throw new Error('Failed to fetch data');
@@ -41,11 +52,13 @@ export default async function Page({
   searchParams?: {
     query?: string;
     page?: string;
+    filter?: string;
   };
 }) {
   const query = searchParams?.query || '';
+  const filter = searchParams?.filter || '';
   const currentPage = Number(searchParams?.page) || 1;
-  const ordersData: orderData[] = await getOrdersData(query, currentPage);
+  const ordersData: orderData[] = await getOrdersData(query, filter, currentPage);
 
   return (
     <main className="container px-1 py-10 md:p-10">
