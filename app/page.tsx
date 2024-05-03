@@ -18,7 +18,13 @@ export interface orderData {
   updated_at: Date;
 }
 
-async function getOrdersData(search: string, status: string, currentPage: number) {
+async function getOrdersData(
+  search: string,
+  status: string,
+  dateSort: string,
+  moneySort: string,
+  currentPage: number
+) {
   noStore();
   let url = `https://apis.codante.io/api/orders-api/orders`;
 
@@ -30,8 +36,18 @@ async function getOrdersData(search: string, status: string, currentPage: number
     url += `${search !== '' ? '&' : '?'}status=${status}`;
   }
 
+  if (dateSort !== '') {
+    url += `${search !== '' || status !== '' ? '&' : '?'}sort=${dateSort}`;
+  }
+
+  if (moneySort !== '') {
+    url += `${search !== '' || status !== '' ? '&' : '?'}sort=${moneySort}`;
+  }
+
   if (currentPage > 1) {
-    url += `${search !== '' || status !== '' ? '&' : '?'}page=${currentPage}`;
+    url += `${
+      search !== '' || status !== '' || dateSort !== '' || moneySort !== '' ? '&' : '?'
+    }page=${currentPage}`;
   }
 
   const response = await fetch(url);
@@ -51,12 +67,22 @@ export default async function Page({
     search?: string;
     page?: string;
     status?: string;
+    dateSort?: string;
+    moneySort?: string;
   };
 }) {
+  const dateSort = searchParams?.dateSort || '';
+  const moneySort = searchParams?.moneySort || '';
   const search = searchParams?.search || '';
   const status = searchParams?.status || '';
   const currentPage = Number(searchParams?.page) || 1;
-  const ordersData: orderData[] = await getOrdersData(search, status, currentPage);
+  const ordersData: orderData[] = await getOrdersData(
+    search,
+    status,
+    dateSort,
+    moneySort,
+    currentPage
+  );
 
   return (
     <main className="container px-1 py-10 md:p-10">

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Table,
   TableBody,
@@ -9,6 +11,9 @@ import {
 import { Badge } from './ui/badge';
 import { ChevronsUpDown } from 'lucide-react';
 import { orderData } from '@/app/page';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Button } from './ui/button';
+import { useState } from 'react';
 
 function centsToReal(value: number): string {
   const realValue = value / 100;
@@ -16,6 +21,23 @@ function centsToReal(value: number): string {
 }
 
 export default function OrdersTable({ ordersData }: { ordersData: orderData[] }) {
+  const [dateSortValue, setDateSortValue] = useState('order_date');
+  const [moneySortValue, setMoneySortValue] = useState('amount_in_cents');
+
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
+
+  function handleValueSorting(sortValue: string) {
+    const params = new URLSearchParams(searchParams);
+    if (sortValue) {
+      params.set('sort', sortValue);
+    } else {
+      params.delete('sort');
+    }
+    replace(`${pathname}?${params.toString()}`);
+  }
+
   return (
     <Table>
       <TableHeader>
@@ -23,14 +45,20 @@ export default function OrdersTable({ ordersData }: { ordersData: orderData[] })
           <TableHead className="table-cell">Cliente</TableHead>
           <TableHead className="table-cell">Status</TableHead>
           <TableHead className="table-cell cursor-pointer justify-end items-center gap-1">
-            <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              onClick={() => handleValueSorting(dateSortValue)}
+              className="flex items-center gap-1"
+            >
               Data
               <ChevronsUpDown className="w-4" />
-            </div>
+            </Button>
           </TableHead>
-          <TableHead className="text-right cursor-pointer flex justify-end items-center gap-1">
-            Valor
-            <ChevronsUpDown className="w-4" />
+          <TableHead className="text-right flex justify-end items-center gap-1">
+            <Button variant="ghost" onClick={() => handleValueSorting(moneySortValue)}>
+              Valor
+              <ChevronsUpDown className="w-4" />
+            </Button>
           </TableHead>
         </TableRow>
       </TableHeader>
