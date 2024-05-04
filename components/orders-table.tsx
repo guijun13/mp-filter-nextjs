@@ -15,10 +15,10 @@ import { Button } from './ui/button';
 import { useState } from 'react';
 import type { OrderData } from '@/lib/types';
 
-function centsToReal(value: number): string {
-  const realValue = value / 100;
-  return `${realValue.toFixed(2).replace('.', ',')}`;
-}
+const formatter = new Intl.NumberFormat('pt-br', {
+  style: 'currency',
+  currency: 'BRL',
+});
 
 export default function OrdersTable({ ordersData }: { ordersData: OrderData[] }) {
   const [dateSortValue, setDateSortValue] = useState('order_date');
@@ -73,11 +73,13 @@ export default function OrdersTable({ ordersData }: { ordersData: OrderData[] })
             </TableCell>
             <TableCell>
               <Badge className={`text-xs`} variant="outline">
-                {order.status}
+                {order.status === 'pending' ? 'Pendente' : 'Completo'}
               </Badge>
             </TableCell>
             <TableCell className="hidden md:table-cell">{order.order_date.toString()}</TableCell>
-            <TableCell className="text-right">R${centsToReal(order.amount_in_cents)}</TableCell>
+            <TableCell className="text-right">
+              {formatter.format(order.amount_in_cents / 100)}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
