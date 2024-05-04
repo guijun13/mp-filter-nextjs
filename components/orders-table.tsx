@@ -10,17 +10,17 @@ import {
 } from '@/components/ui/table';
 import { Badge } from './ui/badge';
 import { ChevronsUpDown } from 'lucide-react';
-import { orderData } from '@/app/page';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Button } from './ui/button';
 import { useState } from 'react';
+import type { OrderData } from '@/lib/types';
 
 function centsToReal(value: number): string {
   const realValue = value / 100;
   return `${realValue.toFixed(2).replace('.', ',')}`;
 }
 
-export default function OrdersTable({ ordersData }: { ordersData: orderData[] }) {
+export default function OrdersTable({ ordersData }: { ordersData: OrderData[] }) {
   const [dateSortValue, setDateSortValue] = useState('order_date');
   const [moneySortValue, setMoneySortValue] = useState('amount_in_cents');
 
@@ -63,7 +63,7 @@ export default function OrdersTable({ ordersData }: { ordersData: orderData[] })
         </TableRow>
       </TableHeader>
       <TableBody>
-        {ordersData?.map((order: orderData) => (
+        {ordersData?.map((order: OrderData) => (
           <TableRow key={order.id}>
             <TableCell>
               <div className="font-medium">{order.customer_name}</div>

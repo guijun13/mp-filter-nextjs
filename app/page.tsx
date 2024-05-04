@@ -6,17 +6,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Suspense } from 'react';
-
-export interface orderData {
-  id: number;
-  customer_name: string;
-  customer_email: string;
-  order_date: Date;
-  amount_in_cents: number;
-  status: string;
-  created_at: Date;
-  updated_at: Date;
-}
+import type { OrderData } from '@/lib/types';
 
 async function getOrdersData(
   search: string,
@@ -76,7 +66,7 @@ export default async function Page({
   const search = searchParams?.search || '';
   const status = searchParams?.status || '';
   const currentPage = Number(searchParams?.page) || 1;
-  const ordersData: orderData[] = await getOrdersData(
+  const ordersData: OrderData[] = await getOrdersData(
     search,
     status,
     dateSort,
