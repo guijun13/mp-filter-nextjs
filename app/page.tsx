@@ -7,48 +7,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Suspense } from 'react';
 import type { OrderData } from '@/lib/types';
-
-async function getOrdersData(
-  search: string,
-  status: string,
-  dateSort: string,
-  moneySort: string,
-  currentPage: number
-) {
-  noStore();
-  let url = `https://apis.codante.io/api/orders-api/orders`;
-
-  if (search !== '') {
-    url += `?search=${search}`;
-  }
-
-  if (status !== '') {
-    url += `${search !== '' ? '&' : '?'}status=${status}`;
-  }
-
-  if (dateSort !== '') {
-    url += `${search !== '' || status !== '' ? '&' : '?'}sort=${dateSort}`;
-  }
-
-  if (moneySort !== '') {
-    url += `${search !== '' || status !== '' ? '&' : '?'}sort=${moneySort}`;
-  }
-
-  if (currentPage > 1) {
-    url += `${
-      search !== '' || status !== '' || dateSort !== '' || moneySort !== '' ? '&' : '?'
-    }page=${currentPage}`;
-  }
-
-  const response = await fetch(url);
-  const orders = await response.json();
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch data');
-  }
-
-  return orders.data;
-}
+import axios from 'axios';
 
 export default async function Page({
   searchParams,
@@ -66,13 +25,18 @@ export default async function Page({
   const search = searchParams?.search || '';
   const status = searchParams?.status || '';
   const currentPage = Number(searchParams?.page) || 1;
-  const ordersData: OrderData[] = await getOrdersData(
-    search,
-    status,
-    dateSort,
-    moneySort,
-    currentPage
-  );
+
+  let url = `https://apis.codante.io/api/orders-api/orders`;
+
+  console.log(url);
+
+  const response = await axios.get(url, {
+    params: {
+      search: searchParams?.search,
+      status: searchParams?.status,
+    },
+  });
+  const orders = response.data;
 
   return (
     <main className="container px-1 py-10 md:p-10">
@@ -87,7 +51,7 @@ export default async function Page({
         </CardHeader>
         <CardContent>
           <Suspense key={search + currentPage}>
-            <OrdersTable ordersData={ordersData} />
+            <OrdersTable ordersData={orders.data} />
           </Suspense>
           <div className="mt-8">
             <Pagination />
