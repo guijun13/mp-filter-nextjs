@@ -18,16 +18,24 @@ export default async function Page({
 }) {
   let url = `https://apis.codante.io/api/orders-api/orders`;
 
-  console.log(url);
-
   const response = await axios.get(url, {
     params: {
       search: searchParams?.search,
       status: searchParams?.status,
       sort: searchParams?.sort,
+      page: searchParams?.page,
     },
   });
-  const orders = response.data;
+  const orders = response.data.data;
+  const lastPage = response.data.meta.last_page;
+  let links: {
+    url: string;
+    label: string;
+    active: boolean;
+    id: number;
+  }[] = response.data.meta.links;
+
+  links = links.map((link, index) => ({ ...link, id: index }));
 
   return (
     <main className="container px-1 py-10 md:p-10">
@@ -41,9 +49,9 @@ export default async function Page({
           </div>
         </CardHeader>
         <CardContent>
-          <OrdersTable ordersData={orders.data} />
+          <OrdersTable ordersData={orders} />
           <div className="mt-8">
-            <Pagination />
+            <Pagination links={links} lastPage={lastPage} />
           </div>
         </CardContent>
       </Card>
