@@ -2,11 +2,8 @@ import FilterDropdown from '@/components/filter-dropdown';
 import OrdersTable from '@/components/orders-table';
 import Pagination from '@/components/pagination';
 import SearchInput from '@/components/search-input';
-import { unstable_noStore as noStore } from 'next/cache';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Suspense } from 'react';
-import type { OrderData } from '@/lib/types';
 import axios from 'axios';
 
 export default async function Page({
@@ -16,16 +13,9 @@ export default async function Page({
     search?: string;
     page?: string;
     status?: string;
-    dateSort?: string;
-    moneySort?: string;
+    sort?: string;
   };
 }) {
-  const dateSort = searchParams?.dateSort || '';
-  const moneySort = searchParams?.moneySort || '';
-  const search = searchParams?.search || '';
-  const status = searchParams?.status || '';
-  const currentPage = Number(searchParams?.page) || 1;
-
   let url = `https://apis.codante.io/api/orders-api/orders`;
 
   console.log(url);
@@ -34,6 +24,7 @@ export default async function Page({
     params: {
       search: searchParams?.search,
       status: searchParams?.status,
+      sort: searchParams?.sort,
     },
   });
   const orders = response.data;
@@ -50,9 +41,7 @@ export default async function Page({
           </div>
         </CardHeader>
         <CardContent>
-          <Suspense key={search + currentPage}>
-            <OrdersTable ordersData={orders.data} />
-          </Suspense>
+          <OrdersTable ordersData={orders.data} />
           <div className="mt-8">
             <Pagination />
           </div>

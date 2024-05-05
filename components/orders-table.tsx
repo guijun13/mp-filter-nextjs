@@ -28,14 +28,18 @@ export default function OrdersTable({ ordersData }: { ordersData: OrderData[] })
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  function handleValueSorting(sortValue: string) {
+  function handleClick(sortValue: string) {
     const params = new URLSearchParams(searchParams);
-    if (sortValue) {
-      params.set('sort', sortValue);
-    } else {
+
+    if (params.get('sort') === sortValue) {
+      params.set('sort', `-${sortValue}`);
+    } else if (params.get('sort') === `-${sortValue}`) {
       params.delete('sort');
+    } else if (sortValue) {
+      params.set('sort', sortValue);
     }
-    replace(`${pathname}?${params.toString()}`);
+
+    replace(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
   return (
@@ -44,21 +48,19 @@ export default function OrdersTable({ ordersData }: { ordersData: OrderData[] })
         <TableRow className="w-full">
           <TableHead className="table-cell">Cliente</TableHead>
           <TableHead className="table-cell">Status</TableHead>
-          <TableHead className="table-cell cursor-pointer justify-end items-center gap-1">
-            <Button
-              variant="ghost"
-              onClick={() => handleValueSorting(dateSortValue)}
-              className="flex items-center gap-1"
-            >
-              Data
-              <ChevronsUpDown className="w-4" />
-            </Button>
+          <TableHead
+            className="hidden md:table-cell cursor-pointer justify-end items-center gap-1"
+            onClick={() => handleClick('order_date')}
+          >
+            Data
+            <ChevronsUpDown className="w-4" />
           </TableHead>
-          <TableHead className="text-right flex justify-end items-center gap-1">
-            <Button variant="ghost" onClick={() => handleValueSorting(moneySortValue)}>
-              Valor
-              <ChevronsUpDown className="w-4" />
-            </Button>
+          <TableHead
+            className="text-right flex cursor-pointer justify-end items-center gap-1"
+            onClick={() => handleClick('amount_in_cents')}
+          >
+            Valor
+            <ChevronsUpDown className="w-4" />
           </TableHead>
         </TableRow>
       </TableHeader>
